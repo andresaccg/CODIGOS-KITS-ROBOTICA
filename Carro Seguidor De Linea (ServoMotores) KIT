@@ -1,0 +1,56 @@
+#include <Servo.h>
+
+// Definición de pines
+#define SENSOR_IZQ A0
+#define SENSOR_DER A1
+#define SERVO_IZQ 9
+#define SERVO_DER 10
+
+Servo servoIzq;
+Servo servoDer;
+
+void setup() {
+    pinMode(SENSOR_IZQ, INPUT);
+    pinMode(SENSOR_DER, INPUT);
+    servoIzq.attach(SERVO_IZQ);
+    servoDer.attach(SERVO_DER);
+}
+
+void loop() {
+    int valIzq = digitalRead(SENSOR_IZQ);
+    int valDer = digitalRead(SENSOR_DER);
+    
+    if (valIzq == LOW && valDer == LOW) {
+        // Ambos sensores detectan línea (seguir recto)
+        moverAdelante();
+    } else if (valIzq == LOW && valDer == HIGH) {
+        // Solo el sensor izquierdo detecta línea (girar derecha)
+        girarDerecha();
+    } else if (valIzq == HIGH && valDer == LOW) {
+        // Solo el sensor derecho detecta línea (girar izquierda)
+        girarIzquierda();
+    } else {
+        // Ambos sensores en blanco (detener o buscar línea)
+        detener();
+    }
+}
+
+void moverAdelante() {
+    servoIzq.write(170); // Ajustar valores según el servo
+    servoDer.write(10);
+}
+
+void girarIzquierda() {
+    servoIzq.write(10);
+    servoDer.write(10);
+}
+
+void girarDerecha() {
+    servoIzq.write(170);
+    servoDer.write(170);
+}
+
+void detener() {
+    servoIzq.write(90);
+    servoDer.write(90);
+}
