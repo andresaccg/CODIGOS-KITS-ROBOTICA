@@ -1,0 +1,105 @@
+// ==== CONFIGURACIÓN DE PINES ====
+// Sensor ultrasónico
+const int trigPin = 9;
+const int echoPin = 8;
+
+// Motores - L298N
+// Motor izquierdo
+const int IN1 = 2;
+const int IN2 = 3;
+// Motor derecho
+const int IN3 = 4;
+const int IN4 = 5;
+// Velocidad PWM
+const int ENA = 6;  // Izquierdo
+const int ENB = 7;  // Derecho
+
+// Variables
+long duracion;
+int distancia;
+
+void setup() {
+  // Pines del sensor
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  // Pines del motor
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  distancia = medirDistancia();
+  Serial.print("Distancia: ");
+  Serial.print(distancia);
+  Serial.println(" cm");
+
+  if (distancia > 20) { 
+    // Si no hay obstáculo cerca, avanzar
+    moverAdelante();
+  } else { 
+    // Si hay obstáculo, detener y retroceder un poco
+    detener();
+    delay(300);
+    moverAtras();
+    delay(400);
+    detener();
+    delay(200);
+    girarDerecha();
+    delay(500);
+  }
+}
+
+// ==== FUNCIONES ====
+
+int medirDistancia() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duracion = pulseIn(echoPin, HIGH);
+  int distancia = duracion * 0.034 / 2; // Fórmula en cm
+  return distancia;
+}
+
+void moverAdelante() {
+  analogWrite(ENA, 150); // Velocidad (0-255)
+  analogWrite(ENB, 150);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void moverAtras() {
+  analogWrite(ENA, 150);
+  analogWrite(ENB, 150);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void girarDerecha() {
+  analogWrite(ENA, 150);
+  analogWrite(ENB, 150);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void detener() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
